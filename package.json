@@ -1,0 +1,19 @@
+{
+  "name": "LexicalAnalysis",
+  "version": "1.0.0",
+  "description": "lexical analysis javascript demo",
+  "author": "zhouyou <zhouyou.world@outlook.com>",
+  "private": true,
+  "scripts": {
+    "build": "babel src -d dist --source-maps"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0"
+  },
+  "engines": {
+    "node": ">= 6.0.0",
+    "npm": ">= 3.0.0"
+  }
+}
