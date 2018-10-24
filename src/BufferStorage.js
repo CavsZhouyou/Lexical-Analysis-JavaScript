@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-10-24 09:33:50 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 11:41:37
+ * @Last Modified time: 2018-10-24 19:04:49
  */
 
 let fs = require("fs"); // 引入文件模块依赖
@@ -44,19 +44,16 @@ class BufferStorage {
    */
   readFile() {
     let bytes = fs.readSync(this.file, this.buffer, this.offset, this.length, this.position);
-
     // 判断文件是否读取完成
     if (bytes !== this.length) {
       this.endFlag = true;
     } else {
       // 修改偏移量来实现不同缓存区读入
-      this.offset = this.offset === 0 ? 0 : this.length;
+      this.offset = this.length - this.offset;
 
       // 修正下次文件读入的起始位置
       this.position += bytes;
     }
-
-
   }
 
   /**
@@ -66,7 +63,41 @@ class BufferStorage {
    * @memberof BufferStorage
    */
   getCharacter(index = 0) {
-    return this.buffer.toString("utf8", index, index + 1);
+    let bufferIndex = index % (this.length * 2);
+
+    // 如果字符索引值还未读入到缓存中
+    while (index >= this.position && !this.endFlag) {
+      this.readFile();
+    }
+
+    return this.buffer.toString("utf8", bufferIndex, bufferIndex + 1);
+  }
+
+  /**
+   * @description  获取指定字符串
+   * @param {number} [start=0]
+   * @param {number} [end=0]
+   * @returns  指定字符串
+   * @memberof BufferStorage
+   */
+  getString(start = 0, end = 0) {
+    let bufferStart = start % (this.length * 2),
+      bufferEnd = end % (this.length * 2),
+      result = "";
+
+    // 如果字符索引值还未读入到缓存中
+    while (end >= this.position && !this.endFlag) {
+      this.readFile();
+    }
+
+    // 判断结束位置在开始位置左边的情况
+    if (bufferEnd < bufferStart) {
+      result = this.buffer.toString("utf8", bufferStart) + this.buffer.toString("utf8", 0, bufferEnd);
+    } else {
+      result = this.buffer.toString("utf8", bufferStart, bufferEnd);
+    }
+
+    return result;
   }
 
   /**

@@ -18,7 +18,7 @@ var fs = require("fs"); // 引入文件模块依赖
  * @TodoList: 无
  * @Date: 2018-10-20 18:46:33 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 11:40:19
+ * @Last Modified time: 2018-10-24 19:03:57
  */
 
 /**
@@ -26,9 +26,9 @@ var fs = require("fs"); // 引入文件模块依赖
  */
 var DOCUMENT_PATH = "./document/test.txt",
     // 源文件路径
-BUFFER_LENGTH = 1024; // 缓存区长度
+BUFFER_LENGTH = 10; // 缓存区长度
 
-/**`
+/**
  * 打开并处理文件
  */
 console.log("准备打开已存在的文件：" + DOCUMENT_PATH);
@@ -39,14 +39,7 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
   }
   console.log("文件打开成功！");
   var buf = new _BufferStorage2.default(fd, BUFFER_LENGTH);
-  buf.readFile();
-  console.log(buf.isFileEnd());
-  buf.readFile();
-  console.log(buf.isFileEnd());
-  buf.reload();
-  buf.readFile();
-  console.log(buf.isFileEnd());
-  buf.readFile();
-  console.log(buf.isFileEnd());
+  // console.log(buf.getCharacter(25));
+  console.log(buf.getString(18, 25));
 });
 //# sourceMappingURL=lexicalAnalysis.js.map
