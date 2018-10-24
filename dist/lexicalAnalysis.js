@@ -19,7 +19,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @TodoList: 无
  * @Date: 2018-10-20 18:46:33 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 20:52:53
+ * @Last Modified time: 2018-10-24 20:58:51
  */
 
 /**
@@ -70,12 +70,12 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
   do {
     charter = buffer.getCharacter(end++);
 
-    // 处理空格、tab、换行符等情况
-    if (charter.match(/^[ ]+$/)) {
+    // 处理空格、换行符等情况
+    if (charter.match(/^[ ]+$/) || charter.match(/[\r\n]/)) {
       continue;
     }
 
-    console.log(end);
+    console.log(charter);
   } while (!buffer.isFileEnd(end));
 });
 //# sourceMappingURL=lexicalAnalysis.js.map
