@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-10-20 18:46:33 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 21:20:43
+ * @Last Modified time: 2018-10-24 21:30:56
  */
 
 
@@ -30,7 +30,8 @@ let identifier = [], // 标识符识别表
   buffer = null, // 缓存区
   start = 0,
   end = 0,
-  state = 0; // 状态机状态
+  state = 0, // 状态机状态
+  results = []; // 存放结果数组
 
 
 /**
@@ -67,12 +68,21 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
       continue;
     } else {
       let token = buffer.getString(start, end);
-      console.log(token);
+
+      // 识别正整数
+      if (parseInt(token) !== NaN) {
+        results.push({
+          type: maps.STATE_MAP.get("int"),
+          value: token
+        })
+      }
+
       start = end;
     }
 
 
   } while (!buffer.isFileEnd(end))
 
+  console.log(results[0].type);
 
 });
