@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-10-24 09:33:50 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 19:04:49
+ * @Last Modified time: 2018-10-24 20:35:09
  */
 
 let fs = require("fs"); // 引入文件模块依赖
@@ -50,10 +50,11 @@ class BufferStorage {
     } else {
       // 修改偏移量来实现不同缓存区读入
       this.offset = this.length - this.offset;
-
-      // 修正下次文件读入的起始位置
-      this.position += bytes;
     }
+
+    // 修正下次文件读入的起始位置
+    this.position += bytes;
+
   }
 
   /**
@@ -102,11 +103,12 @@ class BufferStorage {
 
   /**
    * @description 文件是否读取完成
+   * @param {number} index 索引值
    * @returns 是否完成标志
    * @memberof BufferStorage
    */
-  isFileEnd() {
-    return this.endFlag;
+  isFileEnd(index = 0) {
+    return this.endFlag && index >= this.position;
   }
 
 

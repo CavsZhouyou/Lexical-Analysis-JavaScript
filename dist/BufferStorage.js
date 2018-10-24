@@ -14,7 +14,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @TodoList: 无
  * @Date: 2018-10-24 09:33:50 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 19:03:36
+ * @Last Modified time: 2018-10-24 20:35:09
  */
 
 var fs = require("fs"); // 引入文件模块依赖
@@ -74,12 +74,10 @@ var BufferStorage = function () {
       } else {
         // 修改偏移量来实现不同缓存区读入
         this.offset = this.length - this.offset;
-
-        // 修正下次文件读入的起始位置
-        this.position += bytes;
-
-        console.log(bytes);
       }
+
+      // 修正下次文件读入的起始位置
+      this.position += bytes;
     }
 
     /**
@@ -139,6 +137,7 @@ var BufferStorage = function () {
 
     /**
      * @description 文件是否读取完成
+     * @param {number} index 索引值
      * @returns 是否完成标志
      * @memberof BufferStorage
      */
@@ -146,7 +145,9 @@ var BufferStorage = function () {
   }, {
     key: "isFileEnd",
     value: function isFileEnd() {
-      return this.endFlag;
+      var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+
+      return this.endFlag && index >= this.position;
     }
   }]);
 
