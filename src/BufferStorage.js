@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-10-24 09:33:50 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 20:35:09
+ * @Last Modified time: 2018-10-24 22:44:56
  */
 
 let fs = require("fs"); // 引入文件模块依赖
@@ -108,7 +108,7 @@ class BufferStorage {
    * @memberof BufferStorage
    */
   isFileEnd(index = 0) {
-    return this.endFlag && index >= this.position;
+    return this.endFlag && index > this.position;
   }
 
 

@@ -14,7 +14,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
  * @TodoList: 无
  * @Date: 2018-10-24 09:33:50 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 20:35:09
+ * @Last Modified time: 2018-10-24 22:44:56
  */
 
 var fs = require("fs"); // 引入文件模块依赖
@@ -147,7 +147,7 @@ var BufferStorage = function () {
     value: function isFileEnd() {
       var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
 
-      return this.endFlag && index >= this.position;
+      return this.endFlag && index > this.position;
     }
   }]);
 
