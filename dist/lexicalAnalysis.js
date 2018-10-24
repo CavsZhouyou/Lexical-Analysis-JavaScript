@@ -19,7 +19,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
  * @TodoList: 无
  * @Date: 2018-10-20 18:46:33 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 20:58:51
+ * @Last Modified time: 2018-10-24 21:20:43
  */
 
 /**
@@ -46,9 +46,7 @@ buffer = null,
     // 缓存区
 start = 0,
     end = 0,
-    charter = "",
-    // 每次读取的字符
-state = 0; // 状态机状态
+    state = 0; // 状态机状态
 
 
 /**
@@ -68,14 +66,25 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
   buffer = new _BufferStorage2.default(fd, BUFFER_LENGTH);
 
   do {
-    charter = buffer.getCharacter(end++);
+    var charter = buffer.getCharacter(end++),
+        nextIndex = 0;
 
     // 处理空格、换行符等情况
     if (charter.match(/^[ ]+$/) || charter.match(/[\r\n]/)) {
       continue;
     }
 
-    console.log(charter);
+    // 获取 next 映射表中的索引值
+    nextIndex = maps.BASE[state] + maps.OFFSET_MAP.get(charter);
+
+    if (maps.CHECK[nextIndex] && maps.CHECK[nextIndex] === state) {
+      state = maps.NEXT[nextIndex];
+      continue;
+    } else {
+      var token = buffer.getString(start, end);
+      console.log(token);
+      start = end;
+    }
   } while (!buffer.isFileEnd(end));
 });
 //# sourceMappingURL=lexicalAnalysis.js.map
