@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-10-20 18:46:33 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-24 22:50:51
+ * @Last Modified time: 2018-10-25 09:33:49
  */
 
 
@@ -31,7 +31,8 @@ let identifier = [], // 标识符识别表
   start = 0,
   end = 0,
   state = 0, // 状态机状态
-  results = []; // 存放结果数组
+  results = [], // 存放结果数组
+  isSearching = true;
 
 
 /**
@@ -51,6 +52,10 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
   buffer = new BufferStorage(fd, BUFFER_LENGTH);
 
   do {
+    if (!isSearching) {
+      end--;
+      isSearching = true;
+    }
     let charter = buffer.getCharacter(end),
       nextIndex = 0;
 
@@ -64,11 +69,11 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
       nextIndex = maps.BASE[state] + maps.OFFSET_MAP.get("digit");
     } else if (charter.match(/^[A-Za-z]+$/)) {
       nextIndex = maps.BASE[state] + maps.OFFSET_MAP.get("letter");
+    } else if (charter.match(/^[ ]+$/) || charter.match(/[\r\n]/)) {
+      nextIndex = maps.BASE[state] + maps.OFFSET_MAP.get("space");
     } else {
       nextIndex = maps.BASE[state] + maps.OFFSET_MAP.get(charter);
     }
-
-
 
     if (maps.CHECK[nextIndex] !== "" && maps.CHECK[nextIndex] === state && !buffer.isFileEnd(end + 1)) {
       state = maps.NEXT[nextIndex];
@@ -79,40 +84,44 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
           type: "",
           value: "",
         }
-      console.log(token);
-      // 处理空格、换行符等情况
-      if (token.match(/^[ ]+$/) || token.match(/[\r\n]/)) {
-        start = end;
-        continue;
-      } else {
-        switch (state) {
-          case 1: // 处理标识符的情况
-            identifier.push(token);
-            if (maps.STATE_MAP.get(token)) {
-              result.type = maps.STATE_MAP.get(token);
-              result.value = token;
-            } else {
-              result.type = maps.STATE_MAP.get("identifier");
-              result.value = token;
-            }
-            break;
-          case 2: // 处理整数的情况
-            result.type = maps.STATE_MAP.get("int");
-            result.value = parseInt(token);
-            break;
-          default:
-            if (maps.STATE_MAP.get(token)) {
-              result.type = maps.STATE_MAP.get(token);
-              result.value = token;
-            }
-        }
-        state = maps.DEFAULT[state];
+
+      console.log(start, end);
+
+      switch (state) {
+        case 1: // 处理标识符的情况
+          identifier.push(token);
+          if (maps.STATE_MAP.get(token)) {
+            result.type = maps.STATE_MAP.get(token);
+            result.value = token;
+          } else {
+            result.type = maps.STATE_MAP.get("identifier");
+            result.value = token;
+          }
+          break;
+        case 2: // 处理整数的情况
+          result.type = maps.STATE_MAP.get("int");
+          result.value = parseInt(token);
+          break;
+        case 18:
+          break;
+        default:
+          if (maps.STATE_MAP.get(token)) {
+            result.type = maps.STATE_MAP.get(token);
+            result.value = token;
+          }
+      }
+
+      if (result.type) {
         results.push(result);
       }
+
+      state = maps.DEFAULT[state];
       start = end;
+      isSearching = false;
     }
 
-  } while (!buffer.isFileEnd(++end))
+  }
+  while (!buffer.isFileEnd(++end))
   showResult(results);
 });
 
