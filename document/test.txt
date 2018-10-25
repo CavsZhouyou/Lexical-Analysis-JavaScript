@@ -1,1 +1,11 @@
-while a == b;
+int a = 1;
+int b = 3;
+int c = a **2;
+int d;
+
+a < b;
+
+a >= c;
+
+d = a * c - 5;
+

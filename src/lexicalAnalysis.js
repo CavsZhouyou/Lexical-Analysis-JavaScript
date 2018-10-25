@@ -4,7 +4,7 @@
  * @TodoList: 无
  * @Date: 2018-10-20 18:46:33 
  * @Last Modified by: zhouyou@werun
- * @Last Modified time: 2018-10-25 09:33:49
+ * @Last Modified time: 2018-10-25 11:12:28
  */
 
 
@@ -27,12 +27,7 @@ const DOCUMENT_PATH = "./document/test.txt", // 源文件路径
  * 全局变量定义
  */
 let identifier = [], // 标识符识别表
-  buffer = null, // 缓存区
-  start = 0,
-  end = 0,
-  state = 0, // 状态机状态
-  results = [], // 存放结果数组
-  isSearching = true;
+  results = []; // 存放结果数组
 
 
 /**
@@ -49,7 +44,30 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
   console.log("文件打开成功！");
   console.log("开始对源文件进行词法分析！");
 
-  buffer = new BufferStorage(fd, BUFFER_LENGTH);
+  // 开始词法分许
+  lexicalAnalysis(fd);
+
+  // 关闭文件
+  fs.close(fd, function (err) {
+    if (err) {
+      console.log(err);
+    }
+    console.log("词法分析结果如下：");
+    showResult(results);
+  });
+});
+
+
+/**
+ * @description 词法分析操作函数
+ * @param {*} [file=null] 文件标识符
+ */
+function lexicalAnalysis(file = null) {
+  let buffer = new BufferStorage(file, BUFFER_LENGTH), // 缓存区
+    start = 0, // 字符串状态的开始索引
+    end = 0, // 字符串状态的结束索引
+    state = 0, // 状态机状态
+    isSearching = true; // 判断是否处于状态转移的过程中
 
   do {
     if (!isSearching) {
@@ -58,11 +76,6 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
     }
     let charter = buffer.getCharacter(end),
       nextIndex = 0;
-
-    // // 处理空格、换行符等情况
-    // if (charter.match(/^[ ]+$/) || charter.match(/[\r\n]/)) {
-    //   continue;
-    // }
 
     // 获取 next 映射表中的索引值
     if (charter.match(/^[0-9]*$/)) {
@@ -75,17 +88,16 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
       nextIndex = maps.BASE[state] + maps.OFFSET_MAP.get(charter);
     }
 
+    // 状态转移判断
     if (maps.CHECK[nextIndex] !== "" && maps.CHECK[nextIndex] === state && !buffer.isFileEnd(end + 1)) {
       state = maps.NEXT[nextIndex];
       continue;
-    } else {
+    } else { // 对应不同状态，截取字符串进行判断
       let token = buffer.getString(start, end),
         result = {
           type: "",
           value: "",
         }
-
-      console.log(start, end);
 
       switch (state) {
         case 1: // 处理标识符的情况
@@ -102,7 +114,7 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
           result.type = maps.STATE_MAP.get("int");
           result.value = parseInt(token);
           break;
-        case 18:
+        case 18: // 处理空字符的情况
           break;
         default:
           if (maps.STATE_MAP.get(token)) {
@@ -111,22 +123,26 @@ fs.open(DOCUMENT_PATH, 'r+', function (err, fd) {
           }
       }
 
+      // 对空字符情况做判断
       if (result.type) {
         results.push(result);
       }
 
+      // 结束后转移到默认状态开始下一次循环
       state = maps.DEFAULT[state];
       start = end;
       isSearching = false;
     }
+  } while (!buffer.isFileEnd(++end));
+}
 
-  }
-  while (!buffer.isFileEnd(++end))
-  showResult(results);
-});
 
-// console.log(results[0].type);
-function showResult(results) {
+
+/**
+ * @description 显示词法分析结果
+ * @param {*} [results=[]] 结果数组
+ */
+function showResult(results = []) {
   results.forEach(token => {
     console.log("(" + token.type + "," + token.value + ")")
   });
